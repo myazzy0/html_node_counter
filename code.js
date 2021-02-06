@@ -1,6 +1,6 @@
-const CSS_SELECTOR_TARGET_NODE_LIST='tr';
-const CSS_SELECTOR_TARGET_NODE_NAME='td:nth-child(1)';
-const CSS_SELECTOR_TARGET_NODE_NUM='td:nth-child(2)';
+const CSS_SELECTOR_TARGET_NODE_LIST='.Product__link';
+const CSS_SELECTOR_TARGET_NODE_NAME='p:nth-child(1)';
+const CSS_SELECTOR_TARGET_NODE_NUM='p:nth-child(1) span:nth-child(2)';
 const THRETHOLD_ANOMALY_NUMBER=3;
 
 function isNormal(item) {
@@ -23,7 +23,7 @@ function convertToTable(header, items){
 		$tr.append($td);
 	});
 
-	$header = $('<h3></h3>');
+	$header = $('<h1 class="devHeader"></h1>');
 	$header.text(header);
 	$table.prepend($header);
 
@@ -60,33 +60,45 @@ function groupByName(items){
 	return group;
 }
 
+$button = $('<button>ポチ</button>')
 $(document).ready(function(){
-	//対象の親ノードを取ってくる
-	let elements = $(CSS_SELECTOR_TARGET_NODE_LIST);
+	$('body').prepend($button);
 
-	//jsonのitemを集める
-	let items = collectItems(elements);
-	console.log(items);
-	
-	//normalyとanomalyで分類
-	const normaly = items.filter(x =>  isNormal(x));
-	const anomaly = items.filter(x => !isNormal(x));
-	console.log(normaly);
-	console.log(anomaly);
-
-	//集計をかける
-	const sum_normaly = groupByName(normaly);
-	console.log(items);
-	console.log(sum_normaly);
-	console.log(anomaly);
-
-	//HTMLに整形しつつ、画面上部に表示する
 	$devField=$('<div></div>')
-	$('body').prepend($devField);
+        $button.click(function(){
+		$devField.children().remove();
+		console.log('start');
 
-	$devField.append(convertToTable('ソート前', items));
-	$devField.append(convertToTable('ソート済', items.sort((a,b) => sortByName(a,b))));
-	$devField.append(convertToTable('集計', sum_normaly.sort((a,b) => sortByName(a,b))));
-	$devField.append(convertToTable('外れ値', anomaly.sort((a,b) => sortByName(a,b))));
-	$devField.find('table th,table td').css('border', '1px solid grey');
+		//対象の親ノードを取ってくる
+		let elements = $(CSS_SELECTOR_TARGET_NODE_LIST);
+		console.log(elements);
+
+		//jsonのitemを集める
+		let items = collectItems(elements);
+		console.log(items);
+		
+		//normalyとanomalyで分類
+		const normaly = items.filter(x =>  isNormal(x));
+		const anomaly = items.filter(x => !isNormal(x));
+		console.log(normaly);
+		console.log(anomaly);
+
+		//集計をかける
+		const sum_normaly = groupByName(normaly);
+		console.log(items);
+		console.log(sum_normaly);
+		console.log(anomaly);
+
+		//HTMLに整形しつつ、画面上部に表示する
+		$('body').prepend($devField);
+
+		//$devField.append(convertToTable('ソート前', items));
+		//$devField.append(convertToTable('ソート済', items.sort((a,b) => sortByName(a,b))));
+		$devField.append(convertToTable('集計', sum_normaly.sort((a,b) => sortByName(a,b))));
+		$devField.append(convertToTable('外れ値', anomaly.sort((a,b) => sortByName(a,b))));
+		$devField.find('th').css('text-align', 'left');
+		$devField.find('th,td').css({'border': '1px solid gray', 'padding': '4px'});
+		$devField.find('.devHeader').css('background-color', '#b0c4de');
+        });
 });
+
