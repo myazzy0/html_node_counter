@@ -64,7 +64,7 @@ $button = $('<button>ポチ</button>')
 $(document).ready(function(){
 	$('body').prepend($button);
 
-	$devField=$('<div></div>')
+	$devField=$('<div id="devField"></div>')
         $button.click(function(){
 		$devField.children().remove();
 		console.log('start');
