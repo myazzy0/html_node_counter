@@ -6,14 +6,19 @@ const THRETHOLD_ANOMALY_NUMBER=3;
 function isNormal(item) {
 	return (item.num < THRETHOLD_ANOMALY_NUMBER);
 }
-function convertToTable(header, items){
-	$table = $('<div style="float: left;"><table></table></div>');
+function convertToTable(items){
+	$table = $('<table></table>');
+	$thead = $('<thead><th>商品名</th><th>個数</th></thead>');
+	$tbody = $('<tdoby></tbody>')
+
+	$table.append($thead);
+	$table.append($tbody);
 
 	items.forEach(item => {
 		$tr = $('<tr></tr>');
-		$table.append($tr);
+		$tbody.append($tr);
 
-		$th = $('<th></th>');
+		$th = $('<td></td>');
 		$th.text(item.name);
 
 		$td = $('<td></td>');
@@ -22,10 +27,6 @@ function convertToTable(header, items){
 		$tr.append($th);
 		$tr.append($td);
 	});
-
-	$header = $('<h1 class="devHeader"></h1>');
-	$header.text(header);
-	$table.prepend($header);
 
 	return $table;
 }
@@ -61,10 +62,11 @@ function groupByName(items){
 }
 
 $button = $('<button>ポチ</button>')
+$('body').prepend($button);
 $(document).ready(function(){
-	$('body').prepend($button);
 
 	$devField=$('<div id="devField"></div>')
+
         $button.click(function(){
 		$devField.children().remove();
 		console.log('start');
@@ -90,15 +92,16 @@ $(document).ready(function(){
 		console.log(anomaly);
 
 		//HTMLに整形しつつ、画面上部に表示する
-		$('body').prepend($devField);
+		$button.after($devField);
 
-		//$devField.append(convertToTable('ソート前', items));
-		//$devField.append(convertToTable('ソート済', items.sort((a,b) => sortByName(a,b))));
-		$devField.append(convertToTable('集計', sum_normaly.sort((a,b) => sortByName(a,b))));
-		$devField.append(convertToTable('外れ値', anomaly.sort((a,b) => sortByName(a,b))));
+		$devField.append('<h1>集計</h1>');
+		$devField.append(convertToTable(sum_normaly.sort((a,b) => sortByName(a,b))));
+		$devField.append('<h1>ハズレ値</h1>');
+		$devField.append(convertToTable(anomaly.sort((a,b) => sortByName(a,b))));
+
 		$devField.find('th').css('text-align', 'left');
 		$devField.find('th,td').css({'border': '1px solid gray', 'padding': '4px'});
-		$devField.find('.devHeader').css('background-color', '#b0c4de');
+		$devField.find('h1').css({'background-color': '#b0c4de', 'margin-top': '10px'});
         });
 });
 
