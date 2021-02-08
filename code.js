@@ -1,7 +1,7 @@
 const CSS_SELECTOR_TARGET_NODE_LIST='tr';
 const CSS_SELECTOR_TARGET_NODE_NAME='td:nth-child(1)';
 const CSS_SELECTOR_TARGET_NODE_NUM='td:nth-child(2)';
-const THRETHOLD_ANOMALY_NUMBER=3;
+const THRETHOLD_ANOMALY_NUMBER=4;
 
 function isNormal(item) {
 	return (item.num < THRETHOLD_ANOMALY_NUMBER);
@@ -14,9 +14,6 @@ function convertToTable(items){
 	$table.append($trs).append($trn);
 	items.forEach(item => {
 
-		//$th = $('<td></td>');
-		//$th.text(item.name);
-
 		$tds = $('<th></th>');
 		$tds.text(item.size);
 		$trs.append($tds);
@@ -24,8 +21,6 @@ function convertToTable(items){
 		$tdn = $('<td></td>');
 		$tdn.text(item.num);
 		$trn.append($tdn);
-
-		//$tr.append($th);
 	});
 
 	return $table;
@@ -87,7 +82,6 @@ function groupByName(items){
 	    element.num += current.num; // sum
 	  } else {
 	    result.push({ name: current.name, num: current.num, size: current.size});
-	    //result.push(current);
 	  }
 	  return result;
 	}, []);
@@ -112,7 +106,6 @@ function groupByProduct(items) {
 		r[a.productName] = [...r[a.productName] || [], a];
 		return r;
 	}, {});
-	//console.log("group", group);
 	return group;
 }
 function groupByColor(items) {
@@ -122,7 +115,6 @@ function groupByColor(items) {
 		r[a.color] = [...r[a.color] || [], a];
 		return r;
 	}, {});
-	//console.log("group", group);
 	return group;
 }
 
@@ -160,6 +152,7 @@ function cleanzingName(item){
 	let n = item.name;
 	n = n.replaceAll(/[a-zA-Z][a-zA-Z][a-zA-Z]+/ig, '');
 	n = n.replaceAll(/[,\(\)\ 　\.]/ig, '');
+	n = n.replaceAll(/（[0-9]）/ig, '');
 	item.cleansedName = n;
 }
 function collectSize(item){
@@ -232,22 +225,14 @@ $(document).ready(function(){
 
 		console.log('さらにcolorで分類');
 		Object.keys(itemsGroupedByProduct).forEach(function(k){
-			//console.log(k + ' - ' + itemsGroupedByProduct[k]);
 			itemsGroupedByProduct[k] = groupByColor(itemsGroupedByProduct[k]);
 		});
-		console.log('★★★★★★★★★★★★★');
 		console.log(itemsGroupedByProduct);
 
 		console.log('normalyとanomalyで分類');
 		const normaly = items.filter(x =>  isNormal(x));
 		const anomaly = items.filter(x => !isNormal(x));
 		console.log(normaly);
-		console.log(anomaly);
-
-		console.log('名前でgroupBy');
-		const sum_normaly = groupByName(normaly);
-		console.log(items);
-		console.log(sum_normaly);
 		console.log(anomaly);
 
 		console.log('html整形');
@@ -257,26 +242,16 @@ $(document).ready(function(){
 		let $normalyHeader = $('<h1 id="normalyHeader">集計</h1>');
 		$devField.append($normalyContainer.append($normalyHeader));
 
-		let $anomalyContainer = $('<div id="anomalyContainer"></div>');
-		let $anomalyHeader = $('<h1 id="anomalyHeader">ハズレ値</h1>');
-		$devField.append($anomalyContainer.append($anomalyHeader));
-
-		//$devField.append(convertToTable(anomaly.sort((a,b) => sortByName(a,b))));
 		$devField.append('<h1>以降オリジナル</h1>');
 		console.log('=======');
 
 		Object.keys(itemsGroupedByProduct).forEach(function(pkey){
-			//let $productHeader = $('<h2></h2>').text(pkey);
-			//$normalyContainer.append($productHeader);
-
 			let p = itemsGroupedByProduct[pkey];
 		        let $productBox = $('<div class="productBox"></div>');
 		        let $productContainer = $('<div class="productContainer"></div>');
 		        let $productHeader = $('<h2 class="productHeader"></h2>').text(pkey);
-		        $normalyContainer.append($productBox.append($productHeader.append($productContainer)));
+		        $normalyContainer.append($productBox.append($productHeader).append($productContainer));
 			
-			console.log(p);
-			console.log('@@@@');
 			p = toSortedJSON(p);
 			console.log(p);
 			Object.keys(p).forEach(function(ckey){
@@ -291,16 +266,16 @@ $(document).ready(function(){
 
 				normaly.sort((a,b) => sortBySize(a,b));
 				anomaly.sort((a,b) => sortBySize(a,b));
-				//console.log();
 				console.log(normaly);
 				$colorContainer.append(convertToTable(groupByName(normaly)));
 				$colorContainer.append(convertToTable(anomaly).css('color','red'));
 			});
 		});
 
-		//$devField.find('th').css('text-align', 'left');
-		$devField.find('th,td').css({'border': '1px solid gray', 'padding': '4px'});
-		$devField.find('h1').css({'background-color': '#b0c4de', 'margin-top': '10px'});
+		$devField.find('h1').css({'font-size': '1.1rem', 'background-color': '#6495ed', 'margin-top': '10px'});
+		$devField.find('h2').css({'font-size': '0.9rem', 'background-color': '#87cefa', 'margin-top': '10px'});
+		$devField.find('h3').css({'font-size': '0.8rem', 'background-color': '#f5f5f5', 'margin-top': '10px'});
+		$devField.find('th,td').css({'font-size': '0.8rem', 'border': '1px solid gray', 'padding': '4px'});
 		$('.productContainer').css('display', 'flex');
 		$('.productContainer').css({'border': '1px solid black'});
 		$('.colorContainer').css({'border': '1px solid black'});
