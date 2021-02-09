@@ -9,8 +9,8 @@ function isNormal(item) {
 function convertToTable(items){
 	$table = $('<table></table>');
 
-	$trs = $('<tr></tr>');
-	$trn = $('<tr></tr>');
+	$trs = $('<tr class="sizeName"></tr>');
+	$trn = $('<tr class="sizeNum"></tr>');
 	$table.append($trs).append($trn);
 	items.forEach(item => {
 
@@ -267,7 +267,19 @@ $(document).ready(function(){
 				normaly.sort((a,b) => sortBySize(a,b));
 				anomaly.sort((a,b) => sortBySize(a,b));
 				console.log(normaly);
-				$colorContainer.append(convertToTable(groupByName(normaly)));
+				$colorContainer.append(convertToTable(groupByName(normaly))).append($('<button>copy</button>')).click(function(){
+					let str='';
+					$(this).find('td').each(function(){
+						str = str+ $(this).text() + '\t';
+					})
+					str = str.slice(0, -1) ;
+					str = str + '\n';
+					$(this).find('th').each(function(){
+						str = str+ $(this).text() + '\t';
+					})
+					str = str.slice(0, -1) ;
+					navigator.clipboard.writeText(str);
+				});
 				$colorContainer.append(convertToTable(anomaly).css('color','red'));
 			});
 		});
@@ -281,5 +293,6 @@ $(document).ready(function(){
 		$('.colorContainer').css({'border': '1px solid black'});
 
         });
+
 });
 
